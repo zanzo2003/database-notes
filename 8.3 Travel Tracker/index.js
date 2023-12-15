@@ -18,19 +18,6 @@ const db = new pg.Client({
 
 db.connect();
 
-let visited_countries = [];
-let total = 0;
-
-db.query("SELECT country_code FROM visited_countries", (err, res) => {
-  if (err) {
-    console.log('error in query execution'.err);
-  } else {
-    total = res.rowCount;
-    visited_countries = res.rows;
-    console.log(res.rows);
-  }
-})
-
 app.get("/", async (req, res) => {
   const result = await db.query("SELECT country_code FROM visited_countries");
   let countries = [];
@@ -39,9 +26,22 @@ app.get("/", async (req, res) => {
   });
   console.log(result.rows);
   res.render("index.ejs", { countries: countries, total: countries.length });
-  db.end();
 });
 
+app.post("/add", async(req, res)=>{
+  try {
+    const data = req.body.country;
+    const country_name = data[0].toUpperCase() + data.substring(1);
+    const code = await db.query("SELECT country_code FROM countries WHERE country_name = $1;", [country_name]);
+    const add = await db.query("INSERT INTO visited_countries(country_code) values($1)", [code.rows[0].country_code]);
+    console.log(code.rows[0].country_code);
+    res.redirect('/')
+    
+  } catch (error) {
+    console.log(error)
+    
+  }
+})
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
