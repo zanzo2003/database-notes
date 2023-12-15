@@ -25,11 +25,11 @@ const db = new pg.Client({
 
 db.connect();
 
-db.query("SELECT * FROM flags", (err, res)=>{
+db.query("SELECT name FROM flags WHERE name like 'A%';", (err, res)=>{
   if(err){
     console.log("error executing stack" . err.stack);
   }else{
-    quiz = res.rows;
+    console.log(res.rows);
   }
 })
 
